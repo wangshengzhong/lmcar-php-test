@@ -58,11 +58,91 @@ class ProductHandlerTest extends TestCase
     public function testGetTotalPrice()
     {
         $totalPrice = 0;
-        foreach ($this->products as $product) {
-            $price = $product['price'] ?: 0;
-            $totalPrice += $price;
+        array_walk($this->products,function ($product)use(&$totalPrice){
+            $totalPrice += $product['price'] ?: 0;
+        });
+        $this->assertEquals(143, $totalPrice);
+    }
+
+    public function testGetProductList()
+    {
+        $rightListProductList = [
+            [
+                'id' => 5,
+                'name' => 'New York Cheese Cake',
+                'type' => 'Dessert',
+                'price' => 40,
+                'create_at' => '2021-04-19 14:38:00',
+            ],
+            [
+                'id' => 4,
+                'name' => 'Cup cake',
+                'type' => 'Dessert',
+                'price' => 35,
+                'create_at' => '2021-04-18 08:45:00',
+            ]
+        ];
+            $myProductList = array_filter($this->products,function ($product){
+                return $product['type'] == 'Dessert';
+            });
+            usort($myProductList,function ($a,$b){
+                return $b['price'] <=> $a['price'];
+            });
+            $this->assertEquals($rightListProductList,$myProductList);
         }
 
-        $this->assertEquals(143, $totalPrice);
+
+    public function testGetTimeStampProductList()
+    {
+        $rightProducts = [
+            [
+                'id' => 1,
+                'name' => 'Coca-cola',
+                'type' => 'Drinks',
+                'price' => 10,
+                'create_at' => 1618912800,
+            ],
+            [
+                'id' => 2,
+                'name' => 'Persi',
+                'type' => 'Drinks',
+                'price' => 5,
+                'create_at' => 1618995600,
+            ],
+            [
+                'id' => 3,
+                'name' => 'Ham Sandwich',
+                'type' => 'Sandwich',
+                'price' => 45,
+                'create_at' => 1618945200,
+            ],
+            [
+                'id' => 4,
+                'name' => 'Cup cake',
+                'type' => 'Dessert',
+                'price' => 35,
+                'create_at' => 1618735500,
+            ],
+            [
+                'id' => 5,
+                'name' => 'New York Cheese Cake',
+                'type' => 'Dessert',
+                'price' => 40,
+                'create_at' => 1618843080,
+            ],
+            [
+                'id' => 6,
+                'name' => 'Lemon Tea',
+                'type' => 'Drinks',
+                'price' => 8,
+                'create_at' => 1617564180,
+            ],
+        ];
+        $myProductList = $this->products;
+        $myProductList = array_map(function ($v){
+            $v['create_at'] = strtotime($v['create_at']);
+            return $v;
+        },$myProductList);
+        $this->assertEquals($rightProducts,$myProductList);
     }
 }
